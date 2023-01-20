@@ -13,7 +13,7 @@ class SignUpScreen extends StatelessWidget {
           padding: const EdgeInsets.symmetric(horizontal: Sizes.size40),
           child: Column(
             children: const [
-              Gaps.v8,
+              Gaps.v80,
               Text(
                 "Sign up for TikTok",
                 style: TextStyle(
