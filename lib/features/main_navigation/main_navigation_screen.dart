@@ -19,45 +19,44 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
       child: Text('Search'),
     ),
     const Center(
-      child: Text('Search'),
+      child: Text('Home'),
     ),
     const Center(
       child: Text('Search'),
     ),
     const Center(
       child: Text('Search'),
-    ),
+    )
   ];
 
   void _onTap(int index) {
-    setState(
-      () {
-        _selectedIndex = index;
-      },
-    );
+    setState(() {
+      _selectedIndex = index;
+    });
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: screens[_selectedIndex],
-      bottomNavigationBar: BottomNavigationBar(
-        type: BottomNavigationBarType.shifting,
-        onTap: _onTap,
-        // selectedItemColor: Theme.of(context).primaryColor,
-        currentIndex: _selectedIndex,
-        items: const [
-          BottomNavigationBarItem(
-            icon: FaIcon(FontAwesomeIcons.house),
-            label: "Home",
-            tooltip: "What are you?",
-            backgroundColor: Colors.amber,
+      bottomNavigationBar: NavigationBar(
+        labelBehavior: NavigationDestinationLabelBehavior.onlyShowSelected,
+        selectedIndex: _selectedIndex,
+        onDestinationSelected: _onTap,
+        destinations: const [
+          NavigationDestination(
+            icon: FaIcon(
+              FontAwesomeIcons.house,
+              color: Colors.white,
+            ),
+            label: 'Home',
           ),
-          BottomNavigationBarItem(
-            icon: FaIcon(FontAwesomeIcons.magnifyingGlass),
-            label: "Search",
-            tooltip: "What are you?",
-            backgroundColor: Colors.blue,
+          NavigationDestination(
+            icon: FaIcon(
+              FontAwesomeIcons.magnifyingGlass,
+              color: Colors.white,
+            ),
+            label: 'Search',
           ),
         ],
       ),
