@@ -1,7 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:provider/provider.dart';
 import 'package:tiktok_clone/constants/gaps.dart';
 import 'package:tiktok_clone/constants/sizes.dart';
 import 'package:tiktok_clone/features/videos/view_models/playback_config_vm.dart';
@@ -11,7 +11,7 @@ import 'package:tiktok_clone/generated/l10n.dart';
 import 'package:video_player/video_player.dart';
 import 'package:visibility_detector/visibility_detector.dart';
 
-class VideoPost extends StatefulWidget {
+class VideoPost extends ConsumerStatefulWidget {
   final Function onVideoFinished;
   final int index;
 
@@ -22,10 +22,10 @@ class VideoPost extends StatefulWidget {
   }) : super(key: key);
 
   @override
-  State<VideoPost> createState() => _VideoPostState();
+  ConsumerState<VideoPost> createState() => _VideoPostState();
 }
 
-class _VideoPostState extends State<VideoPost>
+class _VideoPostState extends ConsumerState<VideoPost>
     with SingleTickerProviderStateMixin {
   late final VideoPlayerController _videoPlayerController;
 
@@ -71,7 +71,9 @@ class _VideoPostState extends State<VideoPost>
 
   void _onPlaybackConfigChanged() {
     if (!mounted) return;
-    if (false) {
+    final muted = ref.read(playbackConfigProvider).muted;
+    ref.read(playbackConfigProvider.notifier).setMuted(!muted);
+    if (muted) {
       _videoPlayerController.setVolume(0);
     } else {
       _videoPlayerController.setVolume(1);
@@ -89,7 +91,7 @@ class _VideoPostState extends State<VideoPost>
     if (info.visibleFraction == 1 &&
         !_isPaused &&
         !_videoPlayerController.value.isPlaying) {
-      if (false) {
+      if (ref.read(playbackConfigProvider).autoplay) {
         _videoPlayerController.play();
       }
     }
@@ -172,12 +174,12 @@ class _VideoPostState extends State<VideoPost>
             top: 40,
             child: IconButton(
               icon: FaIcon(
-                false
+                ref.watch(playbackConfigProvider).muted
                     ? FontAwesomeIcons.volumeOff
                     : FontAwesomeIcons.volumeHigh,
                 color: Colors.white,
               ),
-              onPressed: () {},
+              onPressed: _onPlaybackConfigChanged,
             ),
           ),
           Positioned(
