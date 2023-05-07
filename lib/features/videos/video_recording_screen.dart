@@ -19,6 +19,12 @@ class _VideoRecordingScreenState extends State<VideoRecordingScreen>
   bool _hasPermission = false;
   bool _isSelfieMode = false;
   bool _prepareDispose = false;
+
+  late final double _maxZoomLevel;
+  late final double _minZoomLevel;
+  final double _zoomStep = 0.02;
+  double _currentZoomLevel = 1.0;
+
   late FlashMode _flashMode;
 
   late CameraController _cameraController;
@@ -59,13 +65,20 @@ class _VideoRecordingScreenState extends State<VideoRecordingScreen>
     );
 
     await _cameraController.initialize();
+    final maxZoomLevel = await _cameraController.getMaxZoomLevel();
+    final minZoomLevel = await _cameraController.getMinZoomLevel();
+    await _cameraController.setZoomLevel(minZoomLevel);
 
     // iOS를 위함 (iOS에서 비디오 싱크가 맞지 않을 경우의 문제를 해결하기 위함)
     await _cameraController.prepareForVideoRecording();
 
     _flashMode = _cameraController.value.flashMode;
 
-    setState(() {});
+    setState(() {
+      _minZoomLevel = minZoomLevel;
+      _maxZoomLevel = maxZoomLevel;
+      _currentZoomLevel = minZoomLevel;
+    });
   }
 
   Future<void> initPermissions() async {
@@ -84,6 +97,24 @@ class _VideoRecordingScreenState extends State<VideoRecordingScreen>
       setState(() {});
     } else {
       // 권한이 허용되지 않았을 때 처리
+    }
+  }
+
+  Future<void> _onZoomLevelChange(LongPressMoveUpdateDetails detail) async {
+    if (detail.offsetFromOrigin.direction > 0) {
+      if (_currentZoomLevel - _zoomStep >= _minZoomLevel) {
+        await _cameraController.setZoomLevel(_currentZoomLevel - _zoomStep);
+        setState(() {
+          _currentZoomLevel -= _zoomStep;
+        });
+      }
+    } else {
+      if (_currentZoomLevel + _zoomStep <= _maxZoomLevel) {
+        await _cameraController.setZoomLevel(_currentZoomLevel + _zoomStep);
+        setState(() {
+          _currentZoomLevel += _zoomStep;
+        });
+      }
     }
   }
 
@@ -258,6 +289,8 @@ class _VideoRecordingScreenState extends State<VideoRecordingScreen>
                         GestureDetector(
                           onTapDown: _startRecording,
                           onTapUp: (details) => _stopRecording(),
+                          onLongPressEnd: (_) => _stopRecording(),
+                          onLongPressMoveUpdate: _onZoomLevelChange,
                           child: ScaleTransition(
                             scale: _buttonAnimation,
                             child: Stack(
