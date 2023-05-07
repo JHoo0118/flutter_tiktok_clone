@@ -1,5 +1,9 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:go_router/go_router.dart';
+
 import 'package:tiktok_clone/constants/gaps.dart';
 import 'package:tiktok_clone/constants/sizes.dart';
 import 'package:tiktok_clone/features/discover/discover_screen.dart';
@@ -11,19 +15,41 @@ import 'package:tiktok_clone/features/videos/video_timeline_screen.dart';
 import 'package:tiktok_clone/utils.dart';
 
 class MainNavigationScreen extends StatefulWidget {
-  const MainNavigationScreen({super.key});
+  static const String routeName = "mainNavigation";
+
+  final String tab;
+  const MainNavigationScreen({
+    Key? key,
+    required this.tab,
+  }) : super(key: key);
 
   @override
   State<MainNavigationScreen> createState() => _MainNavigationScreenState();
 }
 
 class _MainNavigationScreenState extends State<MainNavigationScreen> {
-  int _selectedIndex = 0;
+  final List<String> _tabs = [
+    "home",
+    "discover",
+    "xxxx",
+    "inbox",
+    "profile",
+  ];
+
+  late int _selectedIndex = max(_tabs.indexOf(widget.tab), 0);
 
   void _onTap(int index) {
+    context.go("/${_tabs[index]}");
     setState(() {
       _selectedIndex = index;
     });
+  }
+
+  void _check() {
+    if (_selectedIndex != _tabs.indexOf(widget.tab)) {
+      _selectedIndex = max(_tabs.indexOf(widget.tab), 0);
+      setState(() {});
+    }
   }
 
   void _onPostVideoButtonTap() {
@@ -39,6 +65,7 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
 
   @override
   Widget build(BuildContext context) {
+    _check();
     final isDark = isDarkMode(context);
     return Scaffold(
       resizeToAvoidBottomInset: false,
