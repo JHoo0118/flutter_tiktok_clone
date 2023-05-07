@@ -11,6 +11,9 @@ import 'package:tiktok_clone/constants/sizes.dart';
 import 'package:tiktok_clone/features/videos/video_preview_screen.dart';
 
 class VideoRecordingScreen extends StatefulWidget {
+  static const String routeName = "postVideo";
+  static const String routeURL = "/upload";
+
   const VideoRecordingScreen({super.key});
 
   @override
@@ -21,7 +24,6 @@ class _VideoRecordingScreenState extends State<VideoRecordingScreen>
     with TickerProviderStateMixin, WidgetsBindingObserver {
   bool _hasPermission = false;
   bool _isSelfieMode = false;
-  bool _prepareDispose = false;
 
   late final bool _noCamera = kDebugMode && Platform.isIOS;
 
@@ -129,9 +131,9 @@ class _VideoRecordingScreenState extends State<VideoRecordingScreen>
     if (!_noCamera) {
       initPermissions();
     } else {
-      // setState(() {
-      //   _hasPermission = true;
-      // });
+      setState(() {
+        _hasPermission = true;
+      });
     }
     WidgetsBinding.instance.addObserver(this);
     _progressAnimationController.addListener(() {
@@ -184,21 +186,24 @@ class _VideoRecordingScreenState extends State<VideoRecordingScreen>
 
   @override
   void dispose() {
-    _cameraController.dispose();
     _buttonAnimationController.dispose();
     _progressAnimationController.dispose();
+    if (!_noCamera) {
+      _cameraController.dispose();
+    }
     super.dispose();
   }
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
-    if (!_hasPermission || !_cameraController.value.isInitialized) return;
+    if (!_noCamera ||
+        !_hasPermission ||
+        !_cameraController.value.isInitialized) {
+      return;
+    }
     if (state == AppLifecycleState.inactive) {
-      _prepareDispose = true;
-      setState(() {});
       _cameraController.dispose();
     } else if (state == AppLifecycleState.resumed) {
-      _prepareDispose = false;
       initCamera();
     }
   }
@@ -238,9 +243,15 @@ class _VideoRecordingScreenState extends State<VideoRecordingScreen>
             : Stack(
                 alignment: Alignment.center,
                 children: [
-                  if (!_prepareDispose ||
-                      (!_noCamera && _cameraController.value.isInitialized))
+                  if (!_noCamera && _cameraController.value.isInitialized)
                     CameraPreview(_cameraController),
+                  const Positioned(
+                    top: Sizes.size40,
+                    left: Sizes.size20,
+                    child: CloseButton(
+                      color: Colors.white,
+                    ),
+                  ),
                   if (!_noCamera)
                     Positioned(
                       top: Sizes.size20,
