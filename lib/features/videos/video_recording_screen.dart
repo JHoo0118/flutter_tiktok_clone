@@ -13,18 +13,18 @@ class VideoRecordingScreen extends StatefulWidget {
 
 class _VideoRecordingScreenState extends State<VideoRecordingScreen> {
   bool _hasPermission = false;
-  late final CameraController _cameraController;
+  bool _isSelfieMode = false;
+  late CameraController _cameraController;
 
   Future<void> initCamera() async {
     // 사용할 수 있는 카메라 확인, 보통 전면(셀카), 후면 카메라 2개
     final cameras = await availableCameras();
-    // [CameraDescription(0, CameraLensDirection.back, 90), CameraDescription(1, CameraLensDirection.front, 270)]
-    print(cameras);
+
     if (cameras.isEmpty) {
       return;
     }
-    _cameraController =
-        CameraController(cameras[0], ResolutionPreset.ultraHigh);
+    _cameraController = CameraController(
+        cameras[_isSelfieMode ? 1 : 0], ResolutionPreset.ultraHigh);
 
     await _cameraController.initialize();
   }
@@ -41,7 +41,7 @@ class _VideoRecordingScreenState extends State<VideoRecordingScreen> {
 
     if (!cameraDenied && !micDenied) {
       _hasPermission = true;
-      initCamera();
+      await initCamera();
       setState(() {});
     } else {
       // 권한이 허용되지 않았을 때 처리
@@ -52,6 +52,12 @@ class _VideoRecordingScreenState extends State<VideoRecordingScreen> {
   void initState() {
     super.initState();
     initPermissions();
+  }
+
+  Future<void> _toggleSelfieMode() async {
+    _isSelfieMode = !_isSelfieMode;
+    await initCamera();
+    setState(() {});
   }
 
   @override
@@ -78,6 +84,17 @@ class _VideoRecordingScreenState extends State<VideoRecordingScreen> {
                 alignment: Alignment.center,
                 children: [
                   CameraPreview(_cameraController),
+                  Positioned(
+                    top: Sizes.size20,
+                    left: Sizes.size20,
+                    child: IconButton(
+                      color: Colors.white,
+                      onPressed: _toggleSelfieMode,
+                      icon: const Icon(
+                        Icons.cameraswitch,
+                      ),
+                    ),
+                  )
                 ],
               ),
       ),
