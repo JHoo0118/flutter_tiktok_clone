@@ -12,20 +12,24 @@ import 'generated/l10n.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
   await SystemChrome.setPreferredOrientations(
     [
       DeviceOrientation.portraitUp,
     ],
   );
+
   final preferences = await SharedPreferences.getInstance();
   final repository = PlaybackConfigRepository(preferences);
 
-  ProviderScope(
-    overrides: [
-      playbackConfigProvider
-          .overrideWith(() => PlaybackConfigViewModel(repository))
-    ],
-    child: const TikTokApp(),
+  runApp(
+    ProviderScope(
+      overrides: [
+        playbackConfigProvider
+            .overrideWith(() => PlaybackConfigViewModel(repository))
+      ],
+      child: const TikTokApp(),
+    ),
   );
 }
 
