@@ -220,8 +220,6 @@ class _VideoPostState extends ConsumerState<VideoPost>
                   radius: 25,
                   backgroundColor: Colors.black,
                   foregroundColor: Colors.white,
-                  foregroundImage: const NetworkImage(
-                      "https://avatars.githubusercontent.com/u/53867397?v=4"),
                   child: Text(widget.videoData.creator),
                 ),
                 Gaps.v24,
