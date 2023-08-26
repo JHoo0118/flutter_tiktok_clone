@@ -32,6 +32,9 @@ dependencies:
   flutter:
     sdk: flutter
 
+  integration_test:
+    sdk: flutter
+
   flutter_localizations:
     sdk: flutter
   intl: any
